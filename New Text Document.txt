@@ -1,0 +1,5 @@
+check with with -carte- or adherent(which will associate with histo)
+
+
+Lecteur: +OK
+	 +POST[histolecteurs]
