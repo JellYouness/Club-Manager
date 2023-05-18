@@ -1,5 +1,5 @@
 // third-party
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit/';
 
 // project import
 import reducers from './reducers';
@@ -11,5 +11,5 @@ const store = configureStore({
 });
 
 const { dispatch } = store;
-
+// setupListeners(store.dispatch);
 export { store, dispatch };

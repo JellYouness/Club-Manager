@@ -27,7 +27,9 @@ class PassportAuthController extends Controller
         ];
         if(auth()->attempt($data)){
             $token =  auth()->user()->createToken('AuthByIs-Tech')->accessToken;
-            return response()->json(['token'=> $token],200);
+            $id = auth()->user()->id;
+            $username =  auth()->user()->username;
+            return response()->json(['id'=>$id,'username'=> $username,'token'=> $token],200);
         }else{
             return response()->json(['error'=> 'Unauthorised'],401);
         } 
@@ -38,7 +40,5 @@ class PassportAuthController extends Controller
     public function userInfo(){
         $user =  auth()->user();
         return response()->json(['user'=> $user],200);
-        
-        
     }
 }

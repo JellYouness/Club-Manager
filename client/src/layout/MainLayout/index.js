@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
@@ -14,6 +14,7 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 
 // types
 import { openDrawer } from 'store/reducers/menu';
+import { useGetAllAdherentsQuery } from 'store/reducers/apiSlice';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
@@ -21,6 +22,8 @@ const MainLayout = () => {
     const theme = useTheme();
     const matchDownLG = useMediaQuery(theme.breakpoints.down('xl'));
     const dispatch = useDispatch();
+    const { isLoggedIn } = useSelector((state) => state.auth);
+    // const isLoggedIn = true;
 
     const { drawerOpen } = useSelector((state) => state.menu);
 
@@ -51,7 +54,7 @@ const MainLayout = () => {
             <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
                 <Toolbar />
                 <Breadcrumbs navigation={navigation} title titleBottom card={false} divider={false} />
-                <Outlet />
+                {isLoggedIn ? <Outlet /> : <Navigate to="/login" />}
             </Box>
         </Box>
     );

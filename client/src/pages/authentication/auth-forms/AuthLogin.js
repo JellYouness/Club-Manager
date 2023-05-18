@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 // material-ui
 import {
@@ -15,7 +15,8 @@ import {
     InputLabel,
     OutlinedInput,
     Stack,
-    Typography
+    Typography,
+    CircularProgress
 } from '@mui/material';
 
 // third party
@@ -28,10 +29,14 @@ import AnimateButton from 'components/@extended/AnimateButton';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, reset } from 'store/reducers/auth/authSlice';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [checked, setChecked] = React.useState(false);
 
     const [showPassword, setShowPassword] = React.useState(false);
@@ -43,19 +48,35 @@ const AuthLogin = () => {
         event.preventDefault();
     };
 
+    const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        if (isError) {
+            console.error(message);
+        }
+
+        if (isSuccess || user) {
+            navigate('/');
+        }
+
+        dispatch(reset());
+    }, [user, isError, isSuccess, message, navigate, dispatch]);
+
     return (
         <>
             <Formik
                 initialValues={{
-                    email: 'info@codedthemes.com',
-                    password: '123456',
+                    username: 'admin',
+                    password: '12345678',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
-                    email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+                    username: Yup.string().required('username is required'),
                     password: Yup.string().max(255).required('Password is required')
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+                    dispatch(login(values));
+                    // console.log(user);
                     try {
                         setStatus({ success: false });
                         setSubmitting(false);
@@ -71,21 +92,22 @@ const AuthLogin = () => {
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
                                 <Stack spacing={1}>
-                                    <InputLabel htmlFor="email-login">Email Address</InputLabel>
+                                    {isLoading ? <CircularProgress style={{ margin: '0 auto' }} /> : null}
+                                    <InputLabel htmlFor="username-login">Username</InputLabel>
                                     <OutlinedInput
-                                        id="email-login"
-                                        type="email"
-                                        value={values.email}
-                                        name="email"
+                                        id="username-login"
+                                        type="username"
+                                        value={values.username}
+                                        name="username"
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        placeholder="Enter email address"
+                                        placeholder="Enter username"
                                         fullWidth
-                                        error={Boolean(touched.email && errors.email)}
+                                        error={Boolean(touched.username && errors.username)}
                                     />
-                                    {touched.email && errors.email && (
-                                        <FormHelperText error id="standard-weight-helper-text-email-login">
-                                            {errors.email}
+                                    {touched.username && errors.username && (
+                                        <FormHelperText error id="standard-weight-helper-text-username-login">
+                                            {errors.username}
                                         </FormHelperText>
                                     )}
                                 </Stack>
@@ -163,14 +185,6 @@ const AuthLogin = () => {
                                         Login
                                     </Button>
                                 </AnimateButton>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Divider>
-                                    <Typography variant="caption"> Login with</Typography>
-                                </Divider>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <FirebaseSocial />
                             </Grid>
                         </Grid>
                     </form>

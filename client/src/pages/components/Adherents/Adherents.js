@@ -33,7 +33,8 @@ import {
     Divider,
     FormControlLabel,
     TableSortLabel,
-    Chip
+    Chip,
+    CircularProgress
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -44,6 +45,11 @@ import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useTheme } from '@mui/material/styles';
 import '../style.css';
+import { useDispatch, useSelector } from 'react-redux';
+// import { deleteAdherent, fetchAdherents, insertAdherent } from 'store/reducers/adherent/adherentSlice';
+import { useGetAllAdherentsQuery, usePrefetch } from 'store/reducers/apiSlice';
+import { fetchAdherents } from 'store/reducers/adherent/adherentSlice';
+import { useEffect } from 'react';
 
 const DeleteIcon = styled.a`
     padding: 4px 3px;
@@ -64,27 +70,6 @@ const Red = {
     color: '#ed4337',
     margin: '0 0 0.2rem 0.2rem'
 };
-
-function createData(id, name, cin, matricule, status, actions, email, naissance, telephone, civilite) {
-    return { id, name, cin, matricule, status, actions, email, naissance, telephone, civilite };
-}
-
-const rows = [
-    createData(1, 'John Doe', '123456', 'M123', true, '', 'john.doe@example.com', '1980-01-01', '555-1234', 'male'),
-    createData(2, 'Jane Smith', '789012', 'M456', false, '', 'jane.smith@example.com', '1990-02-02', '555-5678', 'female'),
-    createData(3, 'jaBob Johnson', '345678', 'M789', false, '', 'bob.johnson@example.com', '1985-03-03', '555-9012', 'male'),
-    createData(4, 'Alice Brown', '901234', 'M012', true, '', 'alice.brown@example.com', '1995-04-04', '555-3456', 'female'),
-    createData(5, 'jaSamuel Lee', '567890', 'M345', false, '', 'samuel.lee@example.com', '1982-05-05', '555-7890', 'male'),
-    createData(6, 'jaEmily Davis', '123789', 'M678', true, '', 'emily.davis@example.com', '1992-06-06', '555-2345', 'female'),
-    createData(7, 'jaTom Wilson', '456012', 'M901', true, '', 'tom.wilson@example.com', '1987-07-07', '555-6789', 'male'),
-    createData(8, 'Sara Clark', '890123', 'M234', false, '', 'sara.clark@example.com', '1997-08-08', '555-1234', 'female'),
-    createData(9, 'jaKevin Green', '678901', 'M567', false, '', 'kevin.green@example.com', '1984-09-09', '555-5678', 'male'),
-    createData(10, 'jaAmy Baker', '234567', 'M890', true, '', 'amy.baker@example.com', '1993-10-10', '555-9012', 'female'),
-    createData(11, 'Alexis White', '890123', 'M123', false, '', 'alexis.white@example.com', '1989-11-11', '555-3456', 'male'),
-    createData(12, 'David Brown', '456789', 'M456', true, '', 'david.brown@example.com', '1999-12-12', '555-7890', 'male'),
-    createData(13, 'Megan Davis', '012345', 'M789', true, '', 'megan.davis@example.com', '1986-01-01', '555-2345', 'female'),
-    createData(14, 'Brian Smith', '678901', 'M012', false, '', 'brian.smith@example.com', '1996-02-02', '555-6789', 'male')
-];
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -250,8 +235,25 @@ const OrderStatus = ({ status }) => {
 OrderStatus.propTypes = {
     status: PropTypes.number
 };
+function createData(id, nom, prenom, cin, email, telephone, naissance, civilité, matricule, status, image, created_at, updated_at) {
+    return { id, nom, prenom, cin, email, telephone, naissance, civilité, matricule, status, image, created_at, updated_at };
+}
 
+// console.log('rows', rows);
 const Adherents = () => {
+    const dispatch = useDispatch();
+    const { records, loading, error, record } = useSelector((state) => state.adherents);
+    useEffect(() => {
+        dispatch(fetchAdherents());
+    }, [records, loading, error, record]);
+
+    console.log('adherents', records, loading);
+    const rows = records;
+    // do {} while (isLoading);
+
+    // while (!isLoading) {}
+    // console.log('data', JSON.parse(data), isLoading);
+
     const theme = useTheme();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('id');
@@ -300,7 +302,9 @@ const Adherents = () => {
             return;
         }
         const filteredRows = rows.filter((row) => {
-            return row.name.toLowerCase().includes(searchedVal.toLowerCase());
+            return (
+                row.nom.toLowerCase().includes(searchedVal.toLowerCase()) || row.prenom.toLowerCase().includes(searchedVal.toLowerCase())
+            );
         });
         // setvisibleRows(stableSort(filteredRows, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage));
         setvisibleRows(filteredRows);
@@ -326,13 +330,29 @@ const Adherents = () => {
         setOpenDelete(false);
     };
 
+    const handleDeleteRow = (id) => {
+        // dispatch(deleteAdherent(id));
+    };
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: updateValues,
         onSubmit: (values, actions) => {
             const status = document.getElementById('status').checked;
-            values = { ...values, photo: base64URL, status: status };
-            console.log(values);
+            values = {
+                nom: values.nom,
+                prenom: values.prenom,
+                email: values.email,
+                cin: values.cin,
+                telephone: values.telephone,
+                naissance: values.naissance,
+                civilité: values.civilite,
+                matricule: values.matricule,
+                photo: base64URL,
+                status: status
+            };
+            dispatch(insertAdherent(values));
+            // dispatch(fetchAdherents());
             try {
             } catch (error) {
                 setError(error.response.data);
@@ -426,24 +446,7 @@ const Adherents = () => {
                 <Button variant="contained" startIcon={<Add />} onClick={handleClickOpen}>
                     Ajouter
                 </Button>
-                <Dialog
-                    open={openDelete}
-                    onClose={handleDeleteClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <Box sx={{ p: 1, py: 1.5 }}>
-                        <DialogTitle id="alert-dialog-title">Voulez vous supprimez cet adherent?</DialogTitle>
-                        <DialogActions>
-                            <Button color="secondary" onClick={handleDeleteClose}>
-                                Annuler
-                            </Button>
-                            <Button variant="contained" color="error">
-                                Supprimer
-                            </Button>
-                        </DialogActions>
-                    </Box>
-                </Dialog>
+
                 <Dialog open={openDialog} onClose={handleClose} aria-labelledby="title">
                     <Box sx={{ p: 1, py: 1.5 }}>
                         <form onSubmit={formik.handleSubmit}>
@@ -673,7 +676,7 @@ const Adherents = () => {
                                                 </Avatar>
                                                 <Stack direction="column">
                                                     <Typography variant="subtitle1" minWidth="100%">
-                                                        {row.name}
+                                                        {row.prenom} {row.nom}
                                                     </Typography>
                                                     <Typography variant="subtitle2" color="textSecondary" fontWeight="normal">
                                                         {row.email}
@@ -701,6 +704,24 @@ const Adherents = () => {
                                             </DeleteIcon>
                                         </TableCell>
                                     </TableRow>
+                                    <Dialog
+                                        open={openDelete}
+                                        onClose={handleDeleteClose}
+                                        aria-labelledby="alert-dialog-title"
+                                        aria-describedby="alert-dialog-description"
+                                    >
+                                        <Box sx={{ p: 1, py: 1.5 }}>
+                                            <DialogTitle id="alert-dialog-title">Voulez vous supprimez cet adherent?</DialogTitle>
+                                            <DialogActions>
+                                                <Button color="secondary" onClick={handleDeleteClose}>
+                                                    Annuler
+                                                </Button>
+                                                <Button variant="contained" color="error" onClick={handleDeleteRow(row.id)}>
+                                                    Supprimer
+                                                </Button>
+                                            </DialogActions>
+                                        </Box>
+                                    </Dialog>
                                     <TableRow>
                                         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }}></TableCell>
                                         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>

@@ -10,10 +10,7 @@ class AdherentController extends Controller
 {
     public function index(){
         $adherent = Adherent::all();
-        return response()->json([
-            'message' => 'All Adherents',
-            'data' => $adherent
-        ]);
+        return response()->json($adherent);
     }
     
     public function show( $id){
