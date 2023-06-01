@@ -12,10 +12,8 @@ class Service extends Model
     protected $fillable = [
         'nom',
         'prix',
-        'reference',
-        'stock',
-        'description',
-        'image'
+        'status',
+        'description'
     ];
 
     public function abonnement(){

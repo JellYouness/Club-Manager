@@ -33,6 +33,7 @@ class AbonnementController extends Controller
         $input = $request->all();
 
         $validator = Validator::make($input, [
+            'nom' => ['required','string'],
             'adherent_id' => ['required', 'exists:adherents,id'],
             'date_debut' => ['required', 'date'],
             'date_fin' => ['required', 'date', 'after:date_debut']

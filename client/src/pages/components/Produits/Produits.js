@@ -34,7 +34,8 @@ import {
     FormControlLabel,
     TableSortLabel,
     Chip,
-    CircularProgress
+    CircularProgress,
+    Autocomplete
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -238,7 +239,6 @@ const Produits = () => {
         dispatch(fetchProduits());
     }, [dispatch]);
     const rows = records;
-    console.log(rows);
     // do {} while (isLoading);
 
     // while (!isLoading) {}
@@ -556,6 +556,9 @@ const Produits = () => {
                                                     value={formik.values.description}
                                                     error={formik.errors.description}
                                                     heplerText={formik.errors.description}
+                                                    multiline
+                                                    fullwidth
+                                                    rows={4}
                                                 />
                                             </Stack>
                                         </div>

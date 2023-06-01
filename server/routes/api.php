@@ -19,4 +19,4 @@ Route::resource('lecteurs',LecteurController::class);
 Route::resource('historiques',HistoLecteurController::class);
 Route::resource('portes',PorteController::class);
 Route::resource('produits',ProduitController::class);
-Route::resource('services',ServicesController::class);
+Route::resource('services',ServiceController::class);

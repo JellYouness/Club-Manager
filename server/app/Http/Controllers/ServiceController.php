@@ -31,10 +31,8 @@ class ServiceController extends Controller
         $validator = Validator::make($input,[
             'nom' => ['required', 'string', 'max:255'],
             'prix' => ['required', 'numeric', 'min:0'],
-            'reference' => ['required', 'string', 'max:255'],
             'status' => ['required', 'boolean'],
-            'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'description' => ['nullable', 'string']
         ]);
 
         if( $validator->fails()){
@@ -58,10 +56,8 @@ class ServiceController extends Controller
         $validator = Validator::make($input,[
             'nom' => ['required', 'string', 'max:255'],
             'prix' => ['required', 'numeric', 'min:0'],
-            'reference' => ['required', 'string', 'max:255'],
             'status' => ['required', 'boolean'],
-            'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'description' => ['nullable', 'string']
         ]);
 
         if( $validator->fails()){

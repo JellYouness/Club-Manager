@@ -17,10 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->float('prix',8,2);
-            $table->string('reference');
             $table->boolean('status');
             $table->string('description')->nullable();
-            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

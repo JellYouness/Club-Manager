@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('abonnements', function (Blueprint $table) {
             $table->id();
+            $table->string('nom');
             $table->foreignIdFor(Adherent::class)->onDelete(null);
             $table->date('date_debut');
             $table->date('date_fin');
