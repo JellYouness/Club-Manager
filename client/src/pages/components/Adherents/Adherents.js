@@ -48,8 +48,9 @@ import '../style.css';
 import { useDispatch, useSelector } from 'react-redux';
 // import { deleteAdherent, fetchAdherents, insertAdherent } from 'store/reducers/adherent/adherentSlice';
 import { useGetAllAdherentsQuery, usePrefetch } from 'store/reducers/apiSlice';
-import { fetchAdherents } from 'store/reducers/adherent/adherentSlice';
+import { deleteAdherent, editAdherent, fetchAdherents, insertAdherent } from 'store/reducers/adherent/adherentSlice';
 import { useEffect } from 'react';
+const API = process.env.REACT_APP_API_URL;
 
 const DeleteIcon = styled.a`
     padding: 4px 3px;
@@ -212,11 +213,11 @@ const OrderStatus = ({ status }) => {
     let title;
 
     switch (status) {
-        case true:
+        case 1:
             color = 'success';
             title = 'Abonné';
             break;
-        case false:
+        case 0:
             color = 'error';
             title = 'Non abonné';
             break;
@@ -245,9 +246,7 @@ const Adherents = () => {
     const { records, loading, error, record } = useSelector((state) => state.adherents);
     useEffect(() => {
         dispatch(fetchAdherents());
-    }, [records, loading, error, record]);
-
-    console.log('adherents', records, loading);
+    }, [dispatch]);
     const rows = records;
     // do {} while (isLoading);
 
@@ -263,6 +262,7 @@ const Adherents = () => {
     const [rowsLength, setRowsLength] = useState(rows.length);
     const [searchCount, setSearchCount] = useState();
     const [base64URL, setBase64URL] = useState('');
+    const [toBeDeleted, setToBeDeleted] = useState();
     const [updateValues, setUpdateValues] = React.useState({});
     const [openDialog, setOpenDialog] = React.useState(false);
     const [openDelete, setOpenDelete] = React.useState(false);
@@ -274,7 +274,7 @@ const Adherents = () => {
     const [visibleRows, setvisibleRows] = useState(InitialRows);
     React.useMemo(
         () => setvisibleRows(stableSort(rows, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)),
-        [order, orderBy, page, rowsPerPage]
+        [order, orderBy, page, rowsPerPage, records]
     );
 
     const handleRequestSort = (event, property) => {
@@ -322,7 +322,8 @@ const Adherents = () => {
         setOpenDialog(false);
     };
 
-    const handleDeleteOpen = (id) => {
+    const handleDeleteOpen = (row) => {
+        setToBeDeleted(row);
         setOpenDelete(true);
     };
 
@@ -330,8 +331,9 @@ const Adherents = () => {
         setOpenDelete(false);
     };
 
-    const handleDeleteRow = (id) => {
-        // dispatch(deleteAdherent(id));
+    const handleDeleteRow = () => {
+        dispatch(deleteAdherent(toBeDeleted.id));
+        handleDeleteClose();
     };
 
     const formik = useFormik({
@@ -340,19 +342,21 @@ const Adherents = () => {
         onSubmit: (values, actions) => {
             const status = document.getElementById('status').checked;
             values = {
+                id: values.id || null,
                 nom: values.nom,
                 prenom: values.prenom,
                 email: values.email,
                 cin: values.cin,
                 telephone: values.telephone,
                 naissance: values.naissance,
-                civilité: values.civilite,
+                civilité: values.civilité,
                 matricule: values.matricule,
-                photo: base64URL,
+                image: base64URL,
                 status: status
             };
-            dispatch(insertAdherent(values));
-            // dispatch(fetchAdherents());
+            values.id ? dispatch(editAdherent(values)) : dispatch(insertAdherent(values));
+            dispatch(fetchAdherents());
+            handleClose();
             try {
             } catch (error) {
                 setError(error.response.data);
@@ -369,7 +373,7 @@ const Adherents = () => {
                 .min(new Date('1950-01-01'), 'Date must be after 1900')
                 .max(new Date('2020-01-01'), 'Date cannot be in the future')
                 .required('la date de naissance est requis'),
-            civilite: yup.mixed().required('La civilité est requise'),
+            civilité: yup.mixed().required('La civilité est requise'),
             matricule: yup.string().max(10, 'Format incorrect').required('Le matricule est requis')
         })
     });
@@ -446,12 +450,30 @@ const Adherents = () => {
                 <Button variant="contained" startIcon={<Add />} onClick={handleClickOpen}>
                     Ajouter
                 </Button>
-
+                <Dialog
+                    open={openDelete}
+                    onClose={handleDeleteClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <Box sx={{ p: 1, py: 1.5 }}>
+                        <DialogTitle id="alert-dialog-title">Voulez vous supprimez cet adherent?</DialogTitle>
+                        <DialogActions>
+                            <Button color="secondary" onClick={handleDeleteClose}>
+                                Annuler
+                            </Button>
+                            <Button variant="contained" color="error" onClick={handleDeleteRow}>
+                                Supprimer
+                            </Button>
+                        </DialogActions>
+                    </Box>
+                </Dialog>
                 <Dialog open={openDialog} onClose={handleClose} aria-labelledby="title">
                     <Box sx={{ p: 1, py: 1.5 }}>
                         <form onSubmit={formik.handleSubmit}>
                             <DialogContent>
                                 <FormControl className="formControl" fullwidth>
+                                    <input id="idUpdate" name="idU" hidden value={formik.values.id} />
                                     <Stack direction="row" spacing={6}>
                                         <div>
                                             <FormLabel style={{ color: theme.palette.secondary.darker }}>Photo:</FormLabel>
@@ -554,10 +576,10 @@ const Adherents = () => {
                                             <Stack direction="row" spacing={3} alignItems="center">
                                                 <FormLabel style={{ color: theme.palette.secondary.darker }}>Civilité:</FormLabel>
                                                 <RadioGroup
-                                                    name="civilite"
-                                                    id="civilite"
+                                                    name="civilité"
+                                                    id="civilité"
                                                     row
-                                                    value={formik.values.civilite ? formik.values.civilite : ''}
+                                                    value={formik.values.civilité ? formik.values.civilité : ''}
                                                     onChange={formik.handleChange}
                                                     onBlur={formik.handleBlur}
                                                 >
@@ -643,6 +665,10 @@ const Adherents = () => {
                 >
                     <EnhancedTableHead order={order} orderBy={orderBy} onRequestSort={handleRequestSort} />
                     <TableBody>
+                        <Stack direction="column" alignItems="center">
+                            {loading ? <CircularProgress /> : null}
+                        </Stack>
+
                         {visibleRows.map((row, index) => {
                             const labelId = `enhanced-table-checkbox-${index}`;
                             return (
@@ -671,9 +697,7 @@ const Adherents = () => {
                                         </TableCell>
                                         <TableCell align="left">
                                             <Stack direction="row" spacing={2}>
-                                                <Avatar>
-                                                    <img alt="" src={row.photo} height={30} />
-                                                </Avatar>
+                                                <Avatar alt="" src={`${API}/storage/${row.image}`} height={30} />
                                                 <Stack direction="column">
                                                     <Typography variant="subtitle1" minWidth="100%">
                                                         {row.prenom} {row.nom}
@@ -699,32 +723,17 @@ const Adherents = () => {
                                             <DeleteIcon>
                                                 <DeleteOutlined
                                                     style={{ color: theme.palette.error.main, cursor: 'pointer', fontSize: '20px' }}
-                                                    onClick={() => handleDeleteOpen(row.id)}
+                                                    onClick={() => {
+                                                        handleDeleteOpen(row);
+                                                    }}
                                                 />
                                             </DeleteIcon>
                                         </TableCell>
                                     </TableRow>
-                                    <Dialog
-                                        open={openDelete}
-                                        onClose={handleDeleteClose}
-                                        aria-labelledby="alert-dialog-title"
-                                        aria-describedby="alert-dialog-description"
-                                    >
-                                        <Box sx={{ p: 1, py: 1.5 }}>
-                                            <DialogTitle id="alert-dialog-title">Voulez vous supprimez cet adherent?</DialogTitle>
-                                            <DialogActions>
-                                                <Button color="secondary" onClick={handleDeleteClose}>
-                                                    Annuler
-                                                </Button>
-                                                <Button variant="contained" color="error" onClick={handleDeleteRow(row.id)}>
-                                                    Supprimer
-                                                </Button>
-                                            </DialogActions>
-                                        </Box>
-                                    </Dialog>
+
                                     <TableRow>
-                                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }}></TableCell>
-                                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+                                        {/* <TableCell style={{ paddingBottom: 0, paddingTop: 0 }}></TableCell> */}
+                                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
                                             <Collapse in={open === index} timeout="auto" unmountOnExit>
                                                 <Box sx={{ margin: 1 }}>
                                                     <Grid container spacing={2}>
@@ -736,12 +745,18 @@ const Adherents = () => {
                                                             >
                                                                 <Stack alignItems="center" spacing={1}>
                                                                     <div class="avatar-preview">
-                                                                        <div style={{ backgroundImage: `${row.photo}` }}></div>
+                                                                        <div
+                                                                            style={{
+                                                                                backgroundImage: `url(${`${API}/storage/${row.image}`})`
+                                                                            }}
+                                                                        ></div>
                                                                     </div>
 
-                                                                    <Typography variant="h5">{row.name}</Typography>
+                                                                    <Typography variant="h5">
+                                                                        {row.prenom} {row.nom}
+                                                                    </Typography>
 
-                                                                    {row.civilite === 'female' ? (
+                                                                    {row.civilité === 'female' ? (
                                                                         <Stack
                                                                             direction="row"
                                                                             alignItems="center"
@@ -749,7 +764,7 @@ const Adherents = () => {
                                                                             spacing={0.5}
                                                                         >
                                                                             <Face4 />
-                                                                            <Typography>{row.civilite}</Typography>
+                                                                            <Typography>{row.civilité}</Typography>
                                                                         </Stack>
                                                                     ) : (
                                                                         <Stack
@@ -759,7 +774,7 @@ const Adherents = () => {
                                                                             spacing={0.5}
                                                                         >
                                                                             <Face6 />
-                                                                            <Typography>{row.civilite}</Typography>
+                                                                            <Typography>{row.civilité}</Typography>
                                                                         </Stack>
                                                                     )}
                                                                 </Stack>
@@ -767,8 +782,17 @@ const Adherents = () => {
                                                         </Grid>
                                                         <Grid item xs={8}>
                                                             <MainCard title="Details personnels">
-                                                                <Stack direction="row" justifyContent="flex start" spacing={24}>
-                                                                    <Stack direction="column" spacing={0.5}>
+                                                                <Stack direction="row" justifyContent="space-between" spacing={24}>
+                                                                    <Stack
+                                                                        direction="column"
+                                                                        spacing={0.5}
+                                                                        style={{
+                                                                            overflow: 'hidden',
+                                                                            wordWrap: 'break-word'
+                                                                        }}
+                                                                        useFlexGap
+                                                                        flexWrap="wrap"
+                                                                    >
                                                                         <Typography
                                                                             variant="body1"
                                                                             color="textSecondary"
@@ -776,8 +800,8 @@ const Adherents = () => {
                                                                         >
                                                                             Nom complet
                                                                         </Typography>
-                                                                        <Typography variant="body1" minWidth="100%">
-                                                                            {row.name}
+                                                                        <Typography variant="body1" style={{ wordWrap: 'break-word' }}>
+                                                                            {row.prenom} {row.nom}f f{row.prenom} {row.nom}
                                                                         </Typography>
                                                                     </Stack>
                                                                     <Stack direction="column" spacing={0.5}>
@@ -788,13 +812,11 @@ const Adherents = () => {
                                                                         >
                                                                             Adresse E-mail
                                                                         </Typography>
-                                                                        <Typography variant="body1" minWidth="100%">
-                                                                            {row.email}
-                                                                        </Typography>
+                                                                        <Typography variant="body1">{row.email}</Typography>
                                                                     </Stack>
                                                                 </Stack>
                                                                 <Divider sx={{ margin: '1rem 0' }} />
-                                                                <Stack direction="row" justifyContent="flex start" spacing={24}>
+                                                                <Stack direction="row" justifyContent="space-between" spacing={24}>
                                                                     <Stack direction="column" spacing={0.5}>
                                                                         <Typography
                                                                             variant="body1"
@@ -804,7 +826,7 @@ const Adherents = () => {
                                                                             Telephone
                                                                         </Typography>
                                                                         <Typography variant="body1" minWidth="100%">
-                                                                            {row.telephone}
+                                                                            +212{row.telephone}
                                                                         </Typography>
                                                                     </Stack>
                                                                     <Stack direction="column" spacing={0.5}>

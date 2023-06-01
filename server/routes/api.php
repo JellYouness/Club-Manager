@@ -18,5 +18,5 @@ Route::resource('cartes',CarteController::class);
 Route::resource('lecteurs',LecteurController::class);
 Route::resource('historiques',HistoLecteurController::class);
 Route::resource('portes',PorteController::class);
-Route::resource('produit',ProduitControlle::class);
+Route::resource('produits',ProduitController::class);
 Route::resource('services',ServicesController::class);

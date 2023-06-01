@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Adherent;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class AdherentController extends Controller
@@ -42,7 +43,7 @@ class AdherentController extends Controller
             'civilité' => ['required', 'in:male,female'],
             'matricule' => ['required', 'numeric', 'digits_between:8,15'],
             'status' => ['required', 'boolean'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'string'],
         ]);
 
         if( $validator->fails()){
@@ -51,6 +52,14 @@ class AdherentController extends Controller
                 'message'=> 'Sorry not stored',
                 'error'=> $validator->errors()
                 ],400);
+        }
+        
+        if($request->image){
+        $base64 = explode(",", $request->image);
+                $image = base64_decode($base64[1]);
+                $filename = 'images/'.time() . '.' . 'png';
+                Storage::put('public/'.$filename, $image);
+                $input['image'] = $filename;
         }
 
         $adherent =  Adherent::create($input);
@@ -75,7 +84,7 @@ class AdherentController extends Controller
             'civilité' => ['required', 'in:male,female'],
             'matricule' => ['required', 'numeric', 'digits_between:8,15'],
             'status' => ['required', 'boolean'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'string'],
         ]);
 
         if( $validator->fails()){
@@ -84,6 +93,13 @@ class AdherentController extends Controller
                 'message'=> 'Sorry not stored',
                 'error'=> $validator->errors()
                 ],400);
+        }
+        if($request->image){
+        $base64 = explode(",", $request->image);
+                $image = base64_decode($base64[1]);
+                $filename = 'images/'.time() . '.' . 'png';
+                Storage::put('public/'.$filename, $image);
+                $input['image'] = $filename;
         }
 
         $adherent->fill($input);

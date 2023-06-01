@@ -1,21 +1,26 @@
-// assets
 import {
-    AppstoreAddOutlined,
-    AntDesignOutlined,
-    BarcodeOutlined,
-    BgColorsOutlined,
-    FontSizeOutlined,
-    LoadingOutlined
-} from '@ant-design/icons';
+    CreditCard,
+    Sensors,
+    History,
+    LocalOffer,
+    MeetingRoom,
+    ManageAccounts,
+    FitnessCenter,
+    WifiTethering,
+    People
+} from '@mui/icons-material';
 
 // icons
 const icons = {
-    FontSizeOutlined,
-    BgColorsOutlined,
-    BarcodeOutlined,
-    AntDesignOutlined,
-    LoadingOutlined,
-    AppstoreAddOutlined
+    People,
+    CreditCard,
+    Sensors,
+    History,
+    LocalOffer,
+    MeetingRoom,
+    ManageAccounts,
+    FitnessCenter,
+    WifiTethering
 };
 
 // ==============================|| MENU ITEMS - UTILITIES ||============================== //
@@ -30,63 +35,63 @@ const utilities = {
             title: 'Adherents',
             type: 'item',
             url: '/adherents',
-            icon: icons.FontSizeOutlined
+            icon: icons.People
         },
         {
             id: 'util-abonnements',
             title: 'Abonnements',
             type: 'item',
             url: '/abonnements',
-            icon: icons.BgColorsOutlined
+            icon: icons.FitnessCenter
         },
         {
             id: 'util-services',
             title: 'Services',
             type: 'item',
             url: '/services',
-            icon: icons.BarcodeOutlined
+            icon: icons.WifiTethering
         },
         {
             id: 'util-produits',
             title: 'Produits',
             type: 'item',
             url: '/produits',
-            icon: icons.BarcodeOutlined
+            icon: icons.LocalOffer
         },
         {
             id: 'util-portes',
             title: 'Portes',
             type: 'item',
             url: '/portes',
-            icon: icons.BarcodeOutlined
+            icon: icons.MeetingRoom
         },
         {
             id: 'util-lecteurs',
             title: 'Lecteurs',
             type: 'item',
             url: '/lecteurs',
-            icon: icons.BarcodeOutlined
+            icon: icons.Sensors
         },
         {
             id: 'util-cartes',
             title: 'Cartes',
             type: 'item',
             url: '/cartes',
-            icon: icons.BarcodeOutlined
+            icon: icons.CreditCard
         },
         {
             id: 'util-historique',
             title: `Historique d'access`,
             type: 'item',
             url: '/historique',
-            icon: icons.BarcodeOutlined
+            icon: icons.History
         },
         {
             id: 'util-utilisateurs',
             title: 'Utilisateurs',
             type: 'item',
             url: '/utilisateurs',
-            icon: icons.AntDesignOutlined
+            icon: icons.ManageAccounts
         }
     ]
 };

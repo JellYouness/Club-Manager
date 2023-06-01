@@ -5,10 +5,10 @@ const initialState = { records: [], loading: false, error: null, record: null };
 const API = process.env.REACT_APP_API_URL;
 const token = localStorage.getItem('userToken');
 
-export const fetchAdherents = createAsyncThunk('fetchAdherents', async (_, thunkAPI) => {
+export const fetchProduits = createAsyncThunk('fetchProduits', async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        const res = await axios.get(`${API}/api/adherents`, {
+        const res = await axios.get(`${API}/api/produits`, {
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
         });
         return res.data;
@@ -17,10 +17,10 @@ export const fetchAdherents = createAsyncThunk('fetchAdherents', async (_, thunk
     }
 });
 
-export const fetchAdherent = createAsyncThunk('fetchAdherent', async (id, thunkAPI) => {
+export const fetchProduit = createAsyncThunk('fetchProduit', async (id, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        const res = await fetch(`${API}api/adherents/${id}`);
+        const res = await fetch(`${API}api/produits/${id}`);
         const data = await res.json();
         return data;
     } catch (error) {
@@ -28,10 +28,10 @@ export const fetchAdherent = createAsyncThunk('fetchAdherent', async (id, thunkA
     }
 });
 
-export const deleteAdherent = createAsyncThunk('deleteAdherent', async (id, thunkAPI) => {
+export const deleteProduit = createAsyncThunk('deleteProduit', async (id, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        await fetch(`${API}/api/adherents/${id}`, {
+        await fetch(`${API}/api/produits/${id}`, {
             method: 'DELETE'
         });
         return id;
@@ -40,25 +40,22 @@ export const deleteAdherent = createAsyncThunk('deleteAdherent', async (id, thun
     }
 });
 
-export const insertAdherent = createAsyncThunk('insertAdherent', async (item, thunkAPI) => {
+export const insertProduit = createAsyncThunk('insertProduit', async (item, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     // const { auth } = getState();
     // item.userId = auth.id;
 
     try {
         const res = await axios.post(
-            `${API}/api/adherents`,
+            `${API}/api/produits`,
             {
+                id: item.id,
                 nom: item.nom,
-                prenom: item.prenom,
-                email: item.email,
-                cin: item.cin,
-                telephone: item.telephone,
-                naissance: item.naissance,
-                civilité: item.civilité,
-                matricule: item.matricule,
-                image: item.image,
-                status: item.status
+                prix: item.prix,
+                reference: item.reference,
+                stock: item.stock,
+                description: item.description,
+                image: item.image
             },
             {
                 body: JSON.stringify(item),
@@ -76,10 +73,10 @@ export const insertAdherent = createAsyncThunk('insertAdherent', async (item, th
     }
 });
 
-export const editAdherent = createAsyncThunk('editAdherent', async (item, thunkAPI) => {
+export const editProduit = createAsyncThunk('editProduit', async (item, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        const res = await fetch(`${API}/api/adherents/${item.id}`, {
+        const res = await fetch(`${API}/api/produits/${item.id}`, {
             method: 'PATCH',
             body: JSON.stringify(item),
             headers: {
@@ -94,8 +91,8 @@ export const editAdherent = createAsyncThunk('editAdherent', async (item, thunkA
     }
 });
 
-const adherentSlice = createSlice({
-    name: 'adherents',
+const produitSlice = createSlice({
+    name: 'produits',
     initialState,
     reducers: {
         cleanRecord: (state) => {
@@ -105,72 +102,72 @@ const adherentSlice = createSlice({
 
     extraReducers: {
         //get one user post
-        [fetchAdherent.pending]: (state) => {
+        [fetchProduit.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [fetchAdherent.fulfilled]: (state, action) => {
+        [fetchProduit.fulfilled]: (state, action) => {
             state.loading = false;
             state.record = action.payload;
         },
-        [fetchAdherent.rejected]: (state, action) => {
+        [fetchProduit.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //fetch users
-        [fetchAdherents.pending]: (state) => {
+        [fetchProduits.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [fetchAdherents.fulfilled]: (state, action) => {
+        [fetchProduits.fulfilled]: (state, action) => {
             state.loading = false;
             state.records = action.payload;
         },
-        [fetchAdherents.rejected]: (state, action) => {
+        [fetchProduits.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //create user
-        [insertAdherent.pending]: (state) => {
+        [insertProduit.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [insertAdherent.fulfilled]: (state, action) => {
+        [insertProduit.fulfilled]: (state, action) => {
             state.loading = false;
             state.records.push(action.payload);
         },
-        [insertAdherent.rejected]: (state, action) => {
+        [insertProduit.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //delete user
-        [deleteAdherent.pending]: (state) => {
+        [deleteProduit.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [deleteAdherent.fulfilled]: (state, action) => {
+        [deleteProduit.fulfilled]: (state, action) => {
             state.loading = false;
             state.records = state.records.filter((el) => el.id !== action.payload);
         },
-        [deleteAdherent.rejected]: (state, action) => {
+        [deleteProduit.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
 
         //edit user
-        [editAdherent.pending]: (state) => {
+        [editProduit.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [editAdherent.fulfilled]: (state, action) => {
+        [editProduit.fulfilled]: (state, action) => {
             state.loading = false;
             state.record = action.payload;
         },
-        [editAdherent.rejected]: (state, action) => {
+        [editProduit.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         }
     }
 });
 
-export default adherentSlice.reducer;
+export default produitSlice.reducer;
