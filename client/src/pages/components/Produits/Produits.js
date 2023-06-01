@@ -237,7 +237,8 @@ const Produits = () => {
     useEffect(() => {
         dispatch(fetchProduits());
     }, [dispatch]);
-    const rows = records.data;
+    const rows = records;
+    console.log(rows);
     // do {} while (isLoading);
 
     // while (!isLoading) {}

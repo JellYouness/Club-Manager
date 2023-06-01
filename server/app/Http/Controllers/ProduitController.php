@@ -11,10 +11,7 @@ class ProduitController extends Controller
 {
     public function index(){
         $produit = Produit::all();
-        return response()->json([
-            'message' => 'all product',
-            'data' => $produit
-        ]);
+        return response()->json($produit);
     }
 
 
@@ -27,10 +24,7 @@ class ProduitController extends Controller
             ],400);
         }
 
-        return response()->json([
-            'message' => 'produit fetched successfully',
-            'data' => $produit
-        ]);
+        return response()->json($produit);
     }
 
     public function store(Request $request){

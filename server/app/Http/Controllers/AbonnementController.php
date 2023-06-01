@@ -12,10 +12,7 @@ class AbonnementController extends Controller
     {
         $abonnements = Abonnement::all();
 
-        return response()->json([
-            'message' => 'All abonnements',
-            'data' => $abonnements
-        ]);
+        return response()->json($abonnements);
     }
 
     public function show($id)
@@ -28,10 +25,7 @@ class AbonnementController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'message' => 'Abonnement fetched successfully',
-            'data' => $abonnement
-        ]);
+        return response()->json( $abonnement);
     }
 
     public function store(Request $request)

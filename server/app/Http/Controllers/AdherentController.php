@@ -24,10 +24,7 @@ class AdherentController extends Controller
                 ],400);
         }
 
-        return response()->json([
-            'message'=> 'adherent fetched successfully',
-            'data'=> $adherent
-            ]);
+        return response()->json($adherent);
     }
 
     

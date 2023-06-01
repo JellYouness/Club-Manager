@@ -11,10 +11,7 @@ class HistoLecteurController extends Controller
     public function index()
     {
         $histoLecteurs = Histo_lecteur::all();
-        return response()->json([
-            'message' => 'all histo_lecteurs',
-            'data' => $histoLecteurs
-        ]);
+        return response()->json($histoLecteurs);
     }
 
     public function show($id)
@@ -26,10 +23,7 @@ class HistoLecteurController extends Controller
             ],400);
         }
 
-        return response()->json([
-            'message' => 'histo_lecteur fetched successfully',
-            'data' => $histoLecteur
-        ]);
+        return response()->json($histoLecteur);
     }
 
     public function store(Request $request)

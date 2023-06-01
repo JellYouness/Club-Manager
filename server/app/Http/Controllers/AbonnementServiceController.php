@@ -10,10 +10,7 @@ class AbonnementServiceController extends Controller
 {
     public function index(){
         $abonnementService = AbonnementService::all();
-        return response()->json([
-            'message' => 'All abonnement services',
-            'data' => $abonnementService
-        ]);
+        return response()->json($abonnementService);
     }
     
     public function store(Request $request){

@@ -10,10 +10,7 @@ class ServiceController extends Controller
 {
     public function index(){
         $services = Service::all();
-        return response()->json([
-            'message' => 'All Services',
-            'data' => $services
-        ]);
+        return response()->json( $services );
     }
     
     public function show($id){
@@ -26,10 +23,7 @@ class ServiceController extends Controller
             ],400);
         }
 
-        return response()->json([
-            'message'=> 'Service fetched successfully',
-            'data'=> $service
-        ]);
+        return response()->json($service);
     }
 
     public function store(Request $request){

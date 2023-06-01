@@ -10,10 +10,7 @@ class LecteurController extends Controller
 {
     public function index(){
         $lecteurs = Lecteur::all();
-        return response()->json([
-            'message' => 'All lecteurs',
-            'data' => $lecteurs
-        ]);
+        return response()->json($lecteurs);
     }
 
     public function show($id){
@@ -25,10 +22,7 @@ class LecteurController extends Controller
             ], 400);
         }
 
-        return response()->json([
-            'message' => 'Lecteur fetched successfully',
-            'data' => $lecteur
-        ]);
+        return response()->json($lecteur);
     }
 
     public function store(Request $request){

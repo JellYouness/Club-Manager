@@ -10,10 +10,7 @@ class PorteController extends Controller
 {
     public function index(){
         $portes = Porte::all();
-        return response()->json([
-            'message' => 'all portes',
-            'data' => $portes
-        ]);
+        return response()->json($portes);
     }
 
 
@@ -26,10 +23,7 @@ class PorteController extends Controller
             ],400);
         }
 
-        return response()->json([
-            'message' => 'porte fetched successfully',
-            'data' => $porte
-        ]);
+        return response()->json($porte);
     }
 
     public function store(Request $request){

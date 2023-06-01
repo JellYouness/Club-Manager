@@ -11,10 +11,7 @@ class CarteController extends Controller
     public function index()
     {
         $cartes = Carte::all();
-        return response()->json([
-            'message' => 'All cards',
-            'data' => $cartes
-        ]);
+        return response()->json($cartes);
     }
 
     public function show($id)
@@ -27,10 +24,7 @@ class CarteController extends Controller
             ], 400);
         }
 
-        return response()->json([
-            'message' => 'Card fetched successfully',
-            'data' => $carte
-        ]);
+        return response()->json($carte);
     }
 
     public function store(Request $request)
