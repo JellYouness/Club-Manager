@@ -19,7 +19,7 @@ const Portes = Loadable(lazy(() => import('pages/components/Portes/Portes')));
 const Lecteurs = Loadable(lazy(() => import('pages/components/Lecteurs/Lecteurs')));
 const Cartes = Loadable(lazy(() => import('pages/components/Cartes/Cartes')));
 const HistoriqueAccess = Loadable(lazy(() => import('pages/components/Historique/HistoriqueAccess')));
-const Utilisateurs = Loadable(lazy(() => import('pages/components/Utilisateurs/Utilisateurs')));
+const Users = Loadable(lazy(() => import('pages/components/Utilisateurs/Users')));
 const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -79,7 +79,7 @@ const MainRoutes = {
         },
         {
             path: 'utilisateurs',
-            element: <Utilisateurs />
+            element: <Users />
         },
         {
             path: 'icons/ant',

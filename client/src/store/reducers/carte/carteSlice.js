@@ -50,7 +50,8 @@ export const insertCarte = createAsyncThunk('insertCarte', async (item, thunkAPI
             `${API}/api/cartes`,
             {
                 adherent_id: item.adherent_id,
-                date_creation: item.date
+                serie: item.serie,
+                status: item.status
             },
             {
                 body: JSON.stringify(item),

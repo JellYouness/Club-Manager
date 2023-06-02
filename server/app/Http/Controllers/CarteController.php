@@ -10,7 +10,7 @@ class CarteController extends Controller
 {
     public function index()
     {
-        $cartes = Carte::all();
+        $cartes = Carte::with('adherent')->get();
         return response()->json($cartes);
     }
 
@@ -32,7 +32,7 @@ class CarteController extends Controller
         $input = $request->all();
         $validator = Validator::make($input, [
             'adherent_id' => ['required', 'integer', 'exists:adherents,id'],
-            'date_creation' => ['required', 'date'],
+            'serie' => ['required'],
             'status' => ['required', 'boolean'],
         ]);
 
@@ -55,7 +55,7 @@ class CarteController extends Controller
         $input = $request->all();
         $validator = Validator::make($input, [
             'adherent_id' => ['required', 'integer', 'exists:adherents,id'],
-            'date_creation' => ['required', 'date'],
+            'serie' => ['required'],
             'status' => ['required', 'boolean'],
         ]);
 

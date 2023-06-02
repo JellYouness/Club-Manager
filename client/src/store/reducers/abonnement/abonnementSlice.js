@@ -5,10 +5,10 @@ const initialState = { records: [], loading: false, error: null, record: null };
 const API = process.env.REACT_APP_API_URL;
 const token = localStorage.getItem('userToken');
 
-export const fetchPortes = createAsyncThunk('fetchPortes', async (_, thunkAPI) => {
+export const fetchAbonnements = createAsyncThunk('fetchAbonnements', async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        const res = await axios.get(`${API}/api/portes`, {
+        const res = await axios.get(`${API}/api/abonnements`, {
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
         });
         return res.data;
@@ -17,10 +17,10 @@ export const fetchPortes = createAsyncThunk('fetchPortes', async (_, thunkAPI) =
     }
 });
 
-export const fetchPorte = createAsyncThunk('fetchPorte', async (id, thunkAPI) => {
+export const fetchAbonnement = createAsyncThunk('fetchAbonnement', async (id, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        const res = await fetch(`${API}/api/portes/${id}`);
+        const res = await fetch(`${API}/api/abonnements/${id}`);
         const data = await res.json();
         return data;
     } catch (error) {
@@ -28,10 +28,10 @@ export const fetchPorte = createAsyncThunk('fetchPorte', async (id, thunkAPI) =>
     }
 });
 
-export const deletePorte = createAsyncThunk('deletePorte', async (id, thunkAPI) => {
+export const deleteAbonnement = createAsyncThunk('deleteAbonnement', async (id, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        await fetch(`${API}/api/portes/${id}`, {
+        await fetch(`${API}/api/abonnements/${id}`, {
             method: 'DELETE'
         });
         return id;
@@ -40,18 +40,17 @@ export const deletePorte = createAsyncThunk('deletePorte', async (id, thunkAPI) 
     }
 });
 
-export const insertPorte = createAsyncThunk('insertPorte', async (item, thunkAPI) => {
+export const insertAbonnement = createAsyncThunk('insertAbonnement', async (item, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     // const { auth } = getState();
     // item.userId = auth.id;
 
     try {
         const res = await axios.post(
-            `${API}/api/portes`,
+            `${API}/api/abonnements`,
             {
-                id: item.id,
-                nom: item.nom,
-                service_id: item.service_id,
+                adherent_id: item.adherent_id,
+                serie: item.serie,
                 status: item.status
             },
             {
@@ -70,10 +69,10 @@ export const insertPorte = createAsyncThunk('insertPorte', async (item, thunkAPI
     }
 });
 
-export const editPorte = createAsyncThunk('editPorte', async (item, thunkAPI) => {
+export const editAbonnement = createAsyncThunk('editAbonnement', async (item, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-        const res = await fetch(`${API}/api/portes/${item.id}`, {
+        const res = await fetch(`${API}/api/abonnements/${item.id}`, {
             method: 'PATCH',
             body: JSON.stringify(item),
             headers: {
@@ -88,8 +87,8 @@ export const editPorte = createAsyncThunk('editPorte', async (item, thunkAPI) =>
     }
 });
 
-const porteSlice = createSlice({
-    name: 'portes',
+const abonnementSlice = createSlice({
+    name: 'abonnements',
     initialState,
     reducers: {
         cleanRecord: (state) => {
@@ -99,72 +98,72 @@ const porteSlice = createSlice({
 
     extraReducers: {
         //get one user post
-        [fetchPorte.pending]: (state) => {
+        [fetchAbonnement.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [fetchPorte.fulfilled]: (state, action) => {
+        [fetchAbonnement.fulfilled]: (state, action) => {
             state.loading = false;
             state.record = action.payload;
         },
-        [fetchPorte.rejected]: (state, action) => {
+        [fetchAbonnement.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //fetch users
-        [fetchPortes.pending]: (state) => {
+        [fetchAbonnements.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [fetchPortes.fulfilled]: (state, action) => {
+        [fetchAbonnements.fulfilled]: (state, action) => {
             state.loading = false;
             state.records = action.payload;
         },
-        [fetchPortes.rejected]: (state, action) => {
+        [fetchAbonnements.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //create user
-        [insertPorte.pending]: (state) => {
+        [insertAbonnement.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [insertPorte.fulfilled]: (state, action) => {
+        [insertAbonnement.fulfilled]: (state, action) => {
             state.loading = false;
             state.records.push(action.payload);
         },
-        [insertPorte.rejected]: (state, action) => {
+        [insertAbonnement.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //delete user
-        [deletePorte.pending]: (state) => {
+        [deleteAbonnement.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [deletePorte.fulfilled]: (state, action) => {
+        [deleteAbonnement.fulfilled]: (state, action) => {
             state.loading = false;
             state.records = state.records.filter((el) => el.id !== action.payload);
         },
-        [deletePorte.rejected]: (state, action) => {
+        [deleteAbonnement.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
 
         //edit user
-        [editPorte.pending]: (state) => {
+        [editAbonnement.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [editPorte.fulfilled]: (state, action) => {
+        [editAbonnement.fulfilled]: (state, action) => {
             state.loading = false;
             state.record = action.payload;
         },
-        [editPorte.rejected]: (state, action) => {
+        [editAbonnement.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         }
     }
 });
 
-export default porteSlice.reducer;
+export default abonnementSlice.reducer;

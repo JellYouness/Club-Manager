@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('cartes', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Adherent::class)->onDelete(null);
-            $table->date('date_creation');
+            $table->integer('serie');
             $table->boolean('status');
             $table->timestamps();
         });

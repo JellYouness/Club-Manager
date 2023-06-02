@@ -11,9 +11,11 @@ class Carte extends Model
 
     protected $fillable = [
         'adherent_id',
-        'date_creation',
+        'serie',
         'status'
     ];
+
+    protected $dateFormat = 'Y/m/d H:i:s';
 
     public function adherent(){
         return $this->belongsTo(Adherent::class);

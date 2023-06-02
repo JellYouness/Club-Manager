@@ -35,20 +35,22 @@ import {
     TableSortLabel,
     Chip,
     CircularProgress,
-    Autocomplete
+    Select,
+    MenuItem
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { Search, Add } from '@mui/icons-material';
+import { VisibilityOutlined, CloseOutlined, Search, Add, Face4, Face6 } from '@mui/icons-material';
+import Dot from 'components/@extended/Dot';
 import MainCard from 'components/MainCard';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useTheme } from '@mui/material/styles';
 import '../style.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAdherents } from 'store/reducers/adherent/adherentSlice';
-import { deleteAbonnement, editAbonnement, fetchAbonnements, insertAbonnement } from 'store/reducers/abonnement/abonnementSlice';
+import { deleteUser, editUser, fetchUsers, insertUser } from 'store/reducers/users/userSlice';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 const API = process.env.REACT_APP_API_URL;
 
 const DeleteIcon = styled.a`
@@ -65,6 +67,11 @@ const EditIcon = styled.a`
     background-color: #bbdefb
     ;
 `;
+
+const Red = {
+    color: '#ed4337',
+    margin: '0 0 0.2rem 0.2rem'
+};
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -102,28 +109,16 @@ const headCells = [
         label: '#'
     },
     {
-        id: 'Adherent',
+        id: 'name',
         align: 'left',
-        disablePadding: false,
-        label: 'Adherent'
+        disablePadding: true,
+        label: 'Username'
     },
     {
-        id: 'status',
+        id: 'role',
         align: 'left',
-        disablePadding: false,
-        label: 'Status'
-    },
-    {
-        id: 'datec',
-        align: 'left',
-        disablePadding: false,
-        label: 'Date de début'
-    },
-    {
-        id: 'datef',
-        align: 'left',
-        disablePadding: false,
-        label: 'Date de fin'
+        disablePadding: true,
+        label: 'Role'
     },
     {
         id: 'actions',
@@ -205,22 +200,22 @@ const OrderStatus = ({ status }) => {
     let title;
 
     switch (status) {
-        case 0:
-            color = 'error';
-            title = 'Terminé';
-            break;
         case 1:
             color = 'success';
-            title = 'En cours';
+            title = 'Abonné';
+            break;
+        case 0:
+            color = 'error';
+            title = 'Non abonné';
             break;
         default:
             color = 'primary';
-            title = status;
+            title = ' ';
     }
 
     return (
         <Stack direction="row" spacing={1} alignItems="center">
-            <Chip label={title} color={color} />
+            <Chip label={title} variant="light" color={color} />
         </Stack>
     );
 };
@@ -230,21 +225,26 @@ OrderStatus.propTypes = {
 };
 
 // console.log('rows', rows);
-const Abonnements = () => {
+const Users = () => {
+    // const navigate = useNavigate();
+    // JSON.parse(localStorage.getItem('user')).role === 'super' ? null : navigate('/404');
     const dispatch = useDispatch();
-    const { records: Adherents } = useSelector((state) => state.adherents);
-    const { records, loading, error, record } = useSelector((state) => state.abonnements);
+    const { records, loading, error, record } = useSelector((state) => state.users);
     useEffect(() => {
-        dispatch(fetchAdherents());
-        dispatch(fetchAbonnements());
+        dispatch(fetchUsers());
     }, [dispatch]);
     const rows = records;
+    // do {} while (isLoading);
+
+    // while (!isLoading) {}
+    // console.log('data', JSON.parse(data), isLoading);
 
     const theme = useTheme();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('id');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [open, setOpen] = React.useState(null);
     const [rowsLength, setRowsLength] = useState(rows.length);
     const [searchCount, setSearchCount] = useState();
     const [base64URL, setBase64URL] = useState('');
@@ -254,7 +254,7 @@ const Abonnements = () => {
     const [openDelete, setOpenDelete] = React.useState(false);
     const InitialRows = React.useMemo(
         () => stableSort(rows, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-        [order, orderBy, page, rowsPerPage, records]
+        [order, orderBy, page, rowsPerPage]
     );
 
     const [visibleRows, setvisibleRows] = useState(InitialRows);
@@ -289,8 +289,7 @@ const Abonnements = () => {
         }
         const filteredRows = rows.filter((row) => {
             return (
-                row.serie.toLowerCase().includes(searchedVal.toLowerCase()) ||
-                row.adherent.nom.toLowerCase().includes(searchedVal.toLowerCase())
+                row.nom.toLowerCase().includes(searchedVal.toLowerCase()) || row.prenom.toLowerCase().includes(searchedVal.toLowerCase())
             );
         });
         // setvisibleRows(stableSort(filteredRows, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage));
@@ -319,7 +318,7 @@ const Abonnements = () => {
     };
 
     const handleDeleteRow = () => {
-        dispatch(deleteAbonnement(toBeDeleted.id));
+        dispatch(deleteUser(toBeDeleted.id));
         handleDeleteClose();
     };
 
@@ -327,16 +326,14 @@ const Abonnements = () => {
         enableReinitialize: true,
         initialValues: updateValues,
         onSubmit: (values, actions) => {
-            const status = document.getElementById('status').checked;
             values = {
                 id: values.id || null,
-                adherent_id: values.adherent.id,
-                serie: values.serie,
-                status: status
+                username: values.username,
+                password: values.password,
+                role: values.role
             };
-            console.log(values);
-            values.id ? dispatch(editAbonnement(values)) : dispatch(insertAbonnement(values));
-            dispatch(fetchAbonnements());
+            values.id ? dispatch(editUser(values)) : dispatch(insertUser(values));
+            dispatch(fetchUsers());
             handleClose();
             try {
             } catch (error) {
@@ -344,9 +341,54 @@ const Abonnements = () => {
             }
         },
         validationSchema: yup.object({
-            // nom: yup.string().max(50, 'Trop Long').required('Le nom est requis')
+            username: yup.string().max(50, 'Trop Long').required('Le nom est requis'),
+            password: yup.string().max(50, 'Trop Long').min(8, 'Trop court | 8 ').required('Le mot de passe est requis')
         })
     });
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                const imagePreview = document.getElementById('imagePreview');
+                imagePreview.style.backgroundImage = `url(${e.target.result})`;
+                imagePreview.style.display = 'none';
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    const getBase64 = (file) => {
+        return new Promise((resolve) => {
+            let baseURL = '';
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                baseURL = reader.result;
+                resolve(baseURL);
+            };
+        });
+    };
+    const handleImageChange = (event) => {
+        readURL(event.target);
+        let selectedFile = event.target.files[0];
+        getBase64(selectedFile)
+            .then((result) => {
+                setBase64URL(result);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+    const age = (date) => {
+        const today = new Date();
+        const birthdate = new Date(date);
+        const age =
+            today.getFullYear() -
+            birthdate.getFullYear() -
+            (today.getMonth() < birthdate.getMonth() ||
+                (today.getMonth() === birthdate.getMonth() && today.getDate() < birthdate.getDate()));
+        return age;
+    };
     return (
         <MainCard>
             <Box
@@ -383,7 +425,7 @@ const Abonnements = () => {
                     aria-describedby="alert-dialog-description"
                 >
                     <Box sx={{ p: 1, py: 1.5 }}>
-                        <DialogTitle id="alert-dialog-title">Voulez vous supprimez cet adherent?</DialogTitle>
+                        <DialogTitle id="alert-dialog-title">Voulez vous supprimez cet User?</DialogTitle>
                         <DialogActions>
                             <Button color="secondary" onClick={handleDeleteClose}>
                                 Annuler
@@ -400,47 +442,60 @@ const Abonnements = () => {
                             <DialogContent>
                                 <FormControl className="formControl" fullwidth>
                                     <input id="idUpdate" name="idU" hidden value={formik.values.id} />
-                                    <Box className="form">
-                                        <Stack>
-                                            <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
-                                                Serie:
-                                            </FormLabel>
-                                            <TextField
-                                                id="serie"
-                                                name="serie"
-                                                type="text"
-                                                placeholder="Enter la serie"
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
-                                                value={formik.values.serie}
-                                                error={formik.errors.serie}
-                                                helperText={formik.errors.serie}
-                                            />
-                                        </Stack>
-                                        <Stack>
-                                            <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
-                                                Adherent:
-                                            </FormLabel>
-                                            <Autocomplete
-                                                disablePortal
-                                                name="adherent"
-                                                options={Adherents}
-                                                getOptionLabel={(option) => option.nom}
-                                                onChange={(e, value) => formik.setFieldValue('adherent', value)}
-                                                defaultValue={updateValues.adherent}
-                                                sx={{ width: 300 }}
-                                                renderInput={(params) => <TextField {...params} placeholder="Selectionner l'adherent" />}
-                                            />
-                                        </Stack>
-
-                                        <Stack direction="row" spacing={3} alignItems="center">
-                                            <FormLabel style={{ color: theme.palette.secondary.darker }}>Status:</FormLabel>
-                                            <FormControlLabel
-                                                control={<Switch id="status" defaultChecked={updateValues.status} />}
-                                                label="Active"
-                                            />
-                                        </Stack>
-                                    </Box>
+                                    <Stack direction="row" spacing={6}>
+                                        <div className="form">
+                                            <Stack>
+                                                <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
+                                                    Username:
+                                                </FormLabel>
+                                                <TextField
+                                                    id="username"
+                                                    name="username"
+                                                    type="text"
+                                                    placeholder="Enter le username"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value={formik.values.username}
+                                                    error={formik.touched.username && formik.errors.username}
+                                                    helperText={formik.touched.username && formik.errors.username}
+                                                />
+                                                <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
+                                                    Mot de passe:
+                                                </FormLabel>
+                                                <TextField
+                                                    id="password"
+                                                    name="password"
+                                                    type="text"
+                                                    placeholder="Enter le mot de passe"
+                                                    onChange={formik.handleChange}
+                                                    onBlur={formik.handleBlur}
+                                                    value={formik.values.password}
+                                                    error={formik.touched.password && formik.errors.password}
+                                                    helperText={formik.touched.password && formik.errors.password}
+                                                />
+                                                <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
+                                                    Permission:
+                                                </FormLabel>
+                                                <Select
+                                                    id="role"
+                                                    name="role"
+                                                    type="text"
+                                                    placeholder="Enter le role"
+                                                    onChange={formik.handleChange}
+                                                    value={formik.values.role ? formik.values.role : 'disabled'}
+                                                    onBlur={formik.handleBlur}
+                                                    inputProps={{ 'aria-label': 'Without label' }}
+                                                >
+                                                    <MenuItem disabled value="disabled">
+                                                        <em>Selectionner le medecin</em>
+                                                    </MenuItem>
+                                                    <MenuItem value="admin">admin</MenuItem>
+                                                    <MenuItem value="prestataire">prestataire</MenuItem>
+                                                    <MenuItem value="super">SuperAdmin</MenuItem>
+                                                </Select>
+                                            </Stack>
+                                        </div>
+                                    </Stack>
                                 </FormControl>
                             </DialogContent>
                             <DialogActions>
@@ -497,12 +552,8 @@ const Abonnements = () => {
                                         <TableCell component="th" id={labelId} scope="row" align="left">
                                             {row.id}
                                         </TableCell>
-                                        <TableCell>{row.adherent ? row.adherent.nom : null}</TableCell>
-                                        <TableCell align="left">
-                                            <OrderStatus status={row.status} />
-                                        </TableCell>
-                                        <TableCell>{row.date_debut}</TableCell>
-                                        <TableCell>{row.date_fin}</TableCell>
+                                        <TableCell>{row.username}</TableCell>
+                                        <TableCell>{row.role}</TableCell>
                                         <TableCell align="center">
                                             <EditIcon>
                                                 <EditOutlined
@@ -548,4 +599,4 @@ const Abonnements = () => {
     );
 };
 
-export default Abonnements;
+export default Users;

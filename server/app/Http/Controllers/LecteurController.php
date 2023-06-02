@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class LecteurController extends Controller
 {
     public function index(){
-        $lecteurs = Lecteur::all();
+        $lecteurs = Lecteur::with('porte')->get();
         return response()->json($lecteurs);
     }
 

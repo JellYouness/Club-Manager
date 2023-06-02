@@ -11,6 +11,8 @@ import porteSlice from './porte/porteSlice';
 import lecteurSlice from './lecteur/lecteurSlice';
 import histoSlice from './histo/histoSlice';
 import carteSlice from './carte/carteSlice';
+import userSlice from './users/userSlice';
+import abonnementSlice from './abonnement/abonnementSlice';
 
 // ==============================|| COMBINE REDUCERS ||============================== //
 
@@ -23,7 +25,9 @@ const reducers = combineReducers({
     portes: porteSlice,
     lecteurs: lecteurSlice,
     histos: histoSlice,
-    cartes: carteSlice
+    cartes: carteSlice,
+    users: userSlice,
+    abonnements: abonnementSlice
 });
 
 export default reducers;

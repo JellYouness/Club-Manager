@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class PorteController extends Controller
 {
     public function index(){
-        $portes = Porte::all();
+        $portes = Porte::with('service')->get();
         return response()->json($portes);
     }
 

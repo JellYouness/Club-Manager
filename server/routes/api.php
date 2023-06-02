@@ -12,6 +12,7 @@ Route::post('login',[PassportAuthController::class,'login']);
 Route::middleware('auth:api')->group(function(){
 
 });
+Route::resource('users',UserController::class);
 Route::resource('abonnements',AbonnementController::class);
 Route::resource('adherents',AdherentController::class);
 Route::resource('cartes',CarteController::class);

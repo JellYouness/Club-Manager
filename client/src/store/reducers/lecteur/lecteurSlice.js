@@ -28,7 +28,7 @@ export const fetchLecteur = createAsyncThunk('fetchLecteur', async (id, thunkAPI
     }
 });
 
-export const deleteLecteurfetchLecteur = createAsyncThunk('deleteLecteurfetchLecteur', async (id, thunkAPI) => {
+export const deleteLecteur = createAsyncThunk('deleteLecteur', async (id, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
         await fetch(`${API}/api/lecteurs/${id}`, {
@@ -40,7 +40,7 @@ export const deleteLecteurfetchLecteur = createAsyncThunk('deleteLecteurfetchLec
     }
 });
 
-export const insertLecteurfetchLecteur = createAsyncThunk('insertLecteurfetchLecteur', async (item, thunkAPI) => {
+export const insertLecteur = createAsyncThunk('insertLecteur', async (item, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     // const { auth } = getState();
     // item.userId = auth.id;
@@ -52,6 +52,7 @@ export const insertLecteurfetchLecteur = createAsyncThunk('insertLecteurfetchLec
                 porte_id: item.porte_id,
                 status: item.status,
                 nom: item.nom,
+                ip: item.ip,
                 serie: item.serie
             },
             {
@@ -70,7 +71,7 @@ export const insertLecteurfetchLecteur = createAsyncThunk('insertLecteurfetchLec
     }
 });
 
-export const editLecteurfetchLecteur = createAsyncThunk('editLecteurfetchLecteur', async (item, thunkAPI) => {
+export const editLecteur = createAsyncThunk('editLecteur', async (item, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
         const res = await fetch(`${API}/api/lecteurs/${item.id}`, {
@@ -125,42 +126,42 @@ const lecteurSlice = createSlice({
             state.error = action.payload;
         },
         //create user
-        [insertLecteurfetchLecteur.pending]: (state) => {
+        [insertLecteur.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [insertLecteurfetchLecteur.fulfilled]: (state, action) => {
+        [insertLecteur.fulfilled]: (state, action) => {
             state.loading = false;
             state.records.push(action.payload);
         },
-        [insertLecteurfetchLecteur.rejected]: (state, action) => {
+        [insertLecteur.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
         //delete user
-        [deleteLecteurfetchLecteur.pending]: (state) => {
+        [deleteLecteur.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [deleteLecteurfetchLecteur.fulfilled]: (state, action) => {
+        [deleteLecteur.fulfilled]: (state, action) => {
             state.loading = false;
             state.records = state.records.filter((el) => el.id !== action.payload);
         },
-        [deleteLecteurfetchLecteur.rejected]: (state, action) => {
+        [deleteLecteur.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         },
 
         //edit user
-        [editLecteurfetchLecteur.pending]: (state) => {
+        [editLecteur.pending]: (state) => {
             state.loading = true;
             state.error = null;
         },
-        [editLecteurfetchLecteur.fulfilled]: (state, action) => {
+        [editLecteur.fulfilled]: (state, action) => {
             state.loading = false;
             state.record = action.payload;
         },
-        [editLecteurfetchLecteur.rejected]: (state, action) => {
+        [editLecteur.rejected]: (state, action) => {
             state.loading = false;
             state.error = action.payload;
         }

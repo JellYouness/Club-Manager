@@ -316,7 +316,7 @@ const Portes = () => {
     };
 
     const handleDeleteRow = () => {
-        dispatch(deleteService(toBeDeleted.id));
+        dispatch(deletePorte(toBeDeleted.id));
         handleDeleteClose();
     };
 
@@ -328,8 +328,7 @@ const Portes = () => {
             values = {
                 id: values.id || null,
                 nom: values.nom,
-                prix: values.prix,
-                service_id: values.service,
+                service_id: values.service.id,
                 status: status
             };
             console.log(values);
@@ -345,50 +344,6 @@ const Portes = () => {
             nom: yup.string().max(50, 'Trop Long').required('Le nom est requis')
         })
     });
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                const imagePreview = document.getElementById('imagePreview');
-                imagePreview.style.backgroundImage = `url(${e.target.result})`;
-                imagePreview.style.display = 'none';
-                imagePreview.style.display = 'block';
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    const getBase64 = (file) => {
-        return new Promise((resolve) => {
-            let baseURL = '';
-            let reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                baseURL = reader.result;
-                resolve(baseURL);
-            };
-        });
-    };
-    const handleImageChange = (event) => {
-        readURL(event.target);
-        let selectedFile = event.target.files[0];
-        getBase64(selectedFile)
-            .then((result) => {
-                setBase64URL(result);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
-    const age = (date) => {
-        const today = new Date();
-        const birthdate = new Date(date);
-        const age =
-            today.getFullYear() -
-            birthdate.getFullYear() -
-            (today.getMonth() < birthdate.getMonth() ||
-                (today.getMonth() === birthdate.getMonth() && today.getDate() < birthdate.getDate()));
-        return age;
-    };
     return (
         <MainCard>
             <Box
@@ -465,12 +420,11 @@ const Portes = () => {
                                             </FormLabel>
                                             <Autocomplete
                                                 disablePortal
-                                                id="service"
+                                                name="service"
                                                 options={services}
-                                                onChange={formik.handleChange}
-                                                onBlur={formik.handleBlur}
                                                 getOptionLabel={(option) => option.nom}
-                                                isOptionEqualToValue={(option) => option.id}
+                                                onChange={(e, value) => formik.setFieldValue('service', value)}
+                                                defaultValue={updateValues.service}
                                                 sx={{ width: 300 }}
                                                 renderInput={(params) => <TextField {...params} placeholder="Selectionner le service" />}
                                             />
@@ -479,7 +433,7 @@ const Portes = () => {
                                         <Stack direction="row" spacing={3} alignItems="center">
                                             <FormLabel style={{ color: theme.palette.secondary.darker }}>Status:</FormLabel>
                                             <FormControlLabel
-                                                control={<Switch id="status" checked={formik.values.status} />}
+                                                control={<Switch id="status" defaultChecked={updateValues.status} />}
                                                 label="Active"
                                             />
                                         </Stack>
@@ -543,11 +497,10 @@ const Portes = () => {
                                         <TableCell>
                                             <Stack direction="column">{row.nom}</Stack>
                                         </TableCell>
-                                        <TableCell>{row.prix}</TableCell>
+                                        <TableCell>{row.service ? row.service.nom : null}</TableCell>
                                         <TableCell align="left">
                                             <OrderStatus status={row.status} />
                                         </TableCell>
-                                        <TableCell>{row.service_id}</TableCell>
                                         <TableCell align="center">
                                             <EditIcon>
                                                 <EditOutlined
