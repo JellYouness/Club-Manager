@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Abonnement;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Abonnement;
+use App\Models\AbonnementService;
 
 class AbonnementController extends Controller
 {
     public function index()
     {
-        $abonnements = Abonnement::all();
+        $abonnements = Abonnement::with('adherent')->get();
 
         return response()->json($abonnements);
     }
@@ -32,6 +33,7 @@ class AbonnementController extends Controller
     {
         $input = $request->all();
 
+
         $validator = Validator::make($input, [
             'nom' => ['required','string'],
             'adherent_id' => ['required', 'exists:adherents,id'],
@@ -47,6 +49,16 @@ class AbonnementController extends Controller
         }
 
         $abonnement = Abonnement::create($input);
+
+        $validator2 = Validator::make($input,[
+            'service_id' => ['required', 'exists:services,id']
+        ]);
+
+        foreach ($input['service'] as $key=>$val) {
+            AbonnementService::create(['abonnement_id' =>$abonnement->id,'service_id' => $val]);
+        };
+        
+
 
         return response()->json([
             'message' => 'Abonnement created successfully',

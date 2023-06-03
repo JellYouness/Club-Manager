@@ -10,6 +10,7 @@ class Abonnement extends Model
     use HasFactory;
 
     protected $fillable = [
+        'nom',
         'adherent_id',
         'date_debut',
         'date_fin'
@@ -20,6 +21,6 @@ class Abonnement extends Model
     }
 
     public function service(){
-        return $this->belongsToMany(Service::class, 'abonnement_service');
+        return $this->belongsToMany(Service::class, 'abonnement_services');
     }
 }

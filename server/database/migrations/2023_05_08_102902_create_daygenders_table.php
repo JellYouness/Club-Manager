@@ -15,7 +15,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('dayGender', function (Blueprint $table) {
+        Schema::create('day_gender', function (Blueprint $table) {
             $table->foreignIdFor(Gender::class)->onDelete(null);
             $table->foreignIdFor(Day::class)->onDelete(null);
             $table->boolean('status');

@@ -12,6 +12,6 @@ class Gender extends Model
     protected $fillable = ['nom'];
 
     public function day(){
-        return $this->belongsToMany(Day::class)->as('dayGender')->withPivot('status');
+        return $this->belongsToMany(Day::class)->as('day_gender')->withPivot('status');
     }
 }

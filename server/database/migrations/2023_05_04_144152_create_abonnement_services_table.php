@@ -15,10 +15,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('abonnement-service', function (Blueprint $table) {
+        Schema::create('abonnement_services', function (Blueprint $table) {
             $table->foreignIdFor(Abonnement::class)->onDelete(null);
             $table->foreignIdFor(Service::class)->onDelete(null);
             $table->primary(['service_id','abonnement_id']);
+            $table->timestamps();
         });
     }
 

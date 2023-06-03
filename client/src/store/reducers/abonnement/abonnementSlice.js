@@ -50,8 +50,11 @@ export const insertAbonnement = createAsyncThunk('insertAbonnement', async (item
             `${API}/api/abonnements`,
             {
                 adherent_id: item.adherent_id,
-                serie: item.serie,
-                status: item.status
+                service: item.service,
+                status: item.status,
+                nom: item.nom,
+                date_debut: item.date_debut,
+                date_fin: item.date_fin
             },
             {
                 body: JSON.stringify(item),

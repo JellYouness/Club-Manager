@@ -35,7 +35,8 @@ import {
     TableSortLabel,
     Chip,
     CircularProgress,
-    Autocomplete
+    Autocomplete,
+    Checkbox
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -47,8 +48,13 @@ import { useTheme } from '@mui/material/styles';
 import '../style.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAdherents } from 'store/reducers/adherent/adherentSlice';
+import { fetchServices } from 'store/reducers/service/serviceSlice';
 import { deleteAbonnement, editAbonnement, fetchAbonnements, insertAbonnement } from 'store/reducers/abonnement/abonnementSlice';
 import { useEffect } from 'react';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 const API = process.env.REACT_APP_API_URL;
 
 const DeleteIcon = styled.a`
@@ -203,19 +209,16 @@ EnhancedTableHead.propTypes = {
 const OrderStatus = ({ status }) => {
     let color;
     let title;
+    let fin = new Date(status);
+    let today = new Date();
+    // alert(fin + '+' + today);
 
-    switch (status) {
-        case 0:
-            color = 'error';
-            title = 'Terminé';
-            break;
-        case 1:
-            color = 'success';
-            title = 'En cours';
-            break;
-        default:
-            color = 'primary';
-            title = status;
+    if (fin < today) {
+        color = 'error';
+        title = 'Exipré';
+    } else {
+        color = 'success';
+        title = 'En cours';
     }
 
     return (
@@ -233,10 +236,12 @@ OrderStatus.propTypes = {
 const Abonnements = () => {
     const dispatch = useDispatch();
     const { records: Adherents } = useSelector((state) => state.adherents);
+    const { records: Services } = useSelector((state) => state.services);
     const { records, loading, error, record } = useSelector((state) => state.abonnements);
     useEffect(() => {
         dispatch(fetchAdherents());
         dispatch(fetchAbonnements());
+        dispatch(fetchServices());
     }, [dispatch]);
     const rows = records;
 
@@ -289,7 +294,7 @@ const Abonnements = () => {
         }
         const filteredRows = rows.filter((row) => {
             return (
-                row.serie.toLowerCase().includes(searchedVal.toLowerCase()) ||
+                row.id.toLowerCase().includes(searchedVal.toLowerCase()) ||
                 row.adherent.nom.toLowerCase().includes(searchedVal.toLowerCase())
             );
         });
@@ -327,12 +332,13 @@ const Abonnements = () => {
         enableReinitialize: true,
         initialValues: updateValues,
         onSubmit: (values, actions) => {
-            const status = document.getElementById('status').checked;
             values = {
                 id: values.id || null,
                 adherent_id: values.adherent.id,
-                serie: values.serie,
-                status: status
+                service: values.service,
+                nom: values.nom,
+                date_debut: values.date_debut,
+                date_fin: values.date_fin
             };
             console.log(values);
             values.id ? dispatch(editAbonnement(values)) : dispatch(insertAbonnement(values));
@@ -403,18 +409,18 @@ const Abonnements = () => {
                                     <Box className="form">
                                         <Stack>
                                             <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
-                                                Serie:
+                                                Nom:
                                             </FormLabel>
                                             <TextField
-                                                id="serie"
-                                                name="serie"
+                                                id="nom"
+                                                name="nom"
                                                 type="text"
-                                                placeholder="Enter la serie"
+                                                placeholder="Enter le nom"
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
-                                                value={formik.values.serie}
-                                                error={formik.errors.serie}
-                                                helperText={formik.errors.serie}
+                                                value={formik.values.nom}
+                                                error={formik.errors.nom}
+                                                helperText={formik.errors.nom}
                                             />
                                         </Stack>
                                         <Stack>
@@ -432,14 +438,68 @@ const Abonnements = () => {
                                                 renderInput={(params) => <TextField {...params} placeholder="Selectionner l'adherent" />}
                                             />
                                         </Stack>
-
-                                        <Stack direction="row" spacing={3} alignItems="center">
-                                            <FormLabel style={{ color: theme.palette.secondary.darker }}>Status:</FormLabel>
-                                            <FormControlLabel
-                                                control={<Switch id="status" defaultChecked={updateValues.status} />}
-                                                label="Active"
+                                        <Stack>
+                                            <FormLabel style={{ marginBottom: '0.2rem', color: theme.palette.secondary.darker }}>
+                                                Services:
+                                            </FormLabel>
+                                            <Autocomplete
+                                                multiple
+                                                disablePortal
+                                                disableCloseOnSelect
+                                                name="service"
+                                                options={Services}
+                                                getOptionLabel={(option) => option.nom}
+                                                onChange={(e, value) =>
+                                                    formik.setFieldValue(
+                                                        'service',
+                                                        value.map((value) => value.id)
+                                                    )
+                                                }
+                                                // onChange={formik.handleChange}
+                                                defaultValue={updateValues.adherent}
+                                                sx={{ width: 300 }}
+                                                renderOption={(props, option, { selected }) => (
+                                                    <li {...props}>
+                                                        <Checkbox
+                                                            icon={icon}
+                                                            checkedIcon={checkedIcon}
+                                                            style={{ marginRight: 8 }}
+                                                            checked={selected}
+                                                        />
+                                                        {option.nom}
+                                                    </li>
+                                                )}
+                                                renderInput={(params) => <TextField {...params} placeholder="Selectionner l'adherent" />}
                                             />
                                         </Stack>
+                                        <FormLabel style={{ color: theme.palette.secondary.darker }}>Date de debut:</FormLabel>
+                                        <TextField
+                                            id="date_debut"
+                                            type="date"
+                                            sx={{ width: 220 }}
+                                            InputLabelProps={{
+                                                shrink: true
+                                            }}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            value={formik.values.date_debut}
+                                            error={formik.errors.date_debut}
+                                            helperText={formik.errors.date_debut}
+                                        />
+                                        <FormLabel style={{ color: theme.palette.secondary.darker }}>Date de fin:</FormLabel>
+                                        <TextField
+                                            id="date_fin"
+                                            type="date"
+                                            sx={{ width: 220 }}
+                                            InputLabelProps={{
+                                                shrink: true
+                                            }}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
+                                            value={formik.values.date_fin}
+                                            error={formik.errors.date_fin}
+                                            helperText={formik.errors.date_fin}
+                                        />
                                     </Box>
                                 </FormControl>
                             </DialogContent>
@@ -499,7 +559,7 @@ const Abonnements = () => {
                                         </TableCell>
                                         <TableCell>{row.adherent ? row.adherent.nom : null}</TableCell>
                                         <TableCell align="left">
-                                            <OrderStatus status={row.status} />
+                                            <OrderStatus status={row.date_fin} />
                                         </TableCell>
                                         <TableCell>{row.date_debut}</TableCell>
                                         <TableCell>{row.date_fin}</TableCell>
