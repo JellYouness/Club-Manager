@@ -58,7 +58,7 @@ function a11yProps(index) {
 
 const Profile = () => {
     const { isLoggedIn } = useSelector((state) => state.auth);
-    const username = isLoggedIn ? JSON.parse(localStorage.getItem('user')).username : null;
+    const username = null;
     const theme = useTheme();
     const dispatch = useDispatch();
 
